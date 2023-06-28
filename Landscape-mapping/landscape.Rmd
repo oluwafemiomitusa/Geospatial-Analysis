@@ -1,0 +1,146 @@
+
+```{r}
+# install.packages("rmarkdown")
+# install.packages("tidyverse", dependencies = TRUE)
+# install.packages("raster", dependencies = TRUE)
+# install.packages("sf", dependencies = TRUE)
+# install.packages("landscapetools", dependencies = TRUE)
+# install.packages("landscapemetrics", dependencies = TRUE)
+```
+
+
+```{r}
+# Load required packages
+
+library(raster)
+library(landscapemetrics)
+library(landscapetools)
+library(sf)
+```
+
+
+```{r}
+# Reload our saved landscape mosaic
+
+lcz <- raster('Houston.tif')
+```
+
+
+```{r}
+# Apply mask to crop out unnecessary areas
+
+#shp <- st_read("SG/SGSHAPE.shp")
+
+#shp <- st_transform(sgshp, crs = crs(NDVI))
+
+#lcz2 <- mask(lcz, sgshp)
+```
+
+
+```{r}
+# View mosaic. check for classifications
+
+show_landscape(lcz, discrete = TRUE)
+```
+
+
+
+```{r}
+#11. Check if NDVI2 is in the right format
+
+check_landscape(lcz)
+```
+
+
+```{r}
+# Transform the geographic projection to meter projection for compatibility with #landmetrics
+
+houston <- "+proj=aea +lat_0=0 +lon_0=-95.3698 +lat_1=29.7604 +lat_2=29.7604 +x_0=0 +y_0=0 +ellps=krass +units=m +no_defs"
+lcz2 <- projectRaster(lcz, crs=houston, method ="ngb") # change the crs in a raster file make sure you add method='ngb'
+check_landscape(lcz2) # now our map is ok 
+```
+```{r}
+show_landscape(lcz2, discrete = TRUE)
+```
+
+
+```{r}
+#12. List all available metrics 
+
+list_lsm(simplify=TRUE, what="patch")
+
+#13. Calculate multiple metrics by name
+```
+
+
+```{r}
+# This cell calculates the metrics for only the class and landscape levels of 
+# all the landscape types.
+results <- calculate_lsm(lcz2,
+level = "-patch",
+what = c("lsm_p_area", "lsm_p_cai", "lsm_p_contig", "lsm_p_core", "lsm_p_enn", "lsm_p_frac", "lsm_p_gyrate", "lsm_p_ncore", "lsm_p_para", "lsm_p_perim", "lsm_p_shape", "lsm_c_ai", "lsm_c_area_cv", "lsm_c_area_mn", "lsm_c_area_sd", "lsm_c_ca", "lsm_c_cai_cv", "lsm_c_cai_mn", "lsm_c_cai_sd",
+"lsm_c_clumpy", "lsm_c_cohesion", "lsm_c_contig_cv", "lsm_c_contig_mn", "lsm_c_contig_sd", "lsm_c_core_cv", "lsm_c_core_mn", "lsm_c_core_sd", "lsm_c_cpland", "lsm_c_dcad", "lsm_c_dcore_cv", "lsm_c_dcore_mn", "lsm_c_dcore_sd", "lsm_c_division", "lsm_c_ed", "lsm_c_enn_cv", "lsm_c_enn_mn", "lsm_c_enn_sd", "lsm_c_frac_cv", "lsm_c_frac_mn", "lsm_c_frac_sd", "lsm_c_gyrate_cv", "lsm_c_gyrate_mn", "lsm_c_gyrate_sd", "lsm_c_iji", "lsm_c_lpi", "lsm_c_lsi", "lsm_c_mesh", "lsm_c_ndca", "lsm_c_nlsi", "lsm_c_np", "lsm_c_pafrac", "lsm_c_para_cv", "lsm_c_para_mn", "lsm_c_para_sd", "lsm_c_pd", "lsm_c_pladj", "lsm_c_pland", "lsm_c_shape_cv", "lsm_c_shape_mn", "lsm_c_shape_sd", "lsm_c_split", "lsm_c_tca", "lsm_c_te", "lsm_l_ai", "lsm_l_area_cv", "lsm_l_area_mn", "lsm_l_area_sd", "lsm_l_cai_cv", "lsm_l_cai_mn", "lsm_l_cai_sd", "lsm_l_cohesion", "lsm_l_condent", "lsm_l_contag",
+"lsm_l_contig_cv", "lsm_l_contig_mn", "lsm_l_contig_sd", "lsm_l_core_cv", "lsm_l_core_mn", "lsm_l_core_sd", "lsm_l_dcad", "lsm_l_dcore_cv", "lsm_l_dcore_mn", "lsm_l_dcore_sd",
+"lsm_l_division", "lsm_l_ed", "lsm_l_enn_cv", "lsm_l_enn_mn", "lsm_l_enn_sd", "lsm_l_ent", "lsm_l_frac_cv", "lsm_l_frac_mn", "lsm_l_frac_sd", "lsm_l_gyrate_cv",
+"lsm_l_gyrate_mn", "lsm_l_gyrate_sd", "lsm_l_iji", "lsm_l_joinent", "lsm_l_lpi", "lsm_l_lsi", "lsm_l_mesh", "lsm_l_msidi", "lsm_l_msiei", "lsm_l_mutinf",
+"lsm_l_ndca", "lsm_l_np", "lsm_l_pafrac", "lsm_l_para_cv", "lsm_l_para_mn", "lsm_l_para_sd", "lsm_l_pd", "lsm_l_pladj", "lsm_l_pr", "lsm_l_prd",
+"lsm_l_relmutinf", "lsm_l_rpr", "lsm_l_shape_cv", "lsm_l_shape_mn", "lsm_l_shape_sd", "lsm_l_shdi", "lsm_l_shei", "lsm_l_sidi", "lsm_l_siei", "lsm_l_split",
+"lsm_l_ta", "lsm_l_tca", "lsm_l_te"
+),
+full_name = TRUE) #include info about metrics in results
+
+write.table(results, file='lsm.csv', sep = ',')
+```
+
+
+```{r}
+#14. Optional. To save image,
+
+#At top of chunk:
+#png('imagename.png', height =3600, width =3600, res=300)
+
+#show_landscape(NDVI2, discrete = TRUE)
+
+#At bottom of chunk:
+#dev.off()
+
+#15. Optional. To save table
+
+#n <- calculate_lsm(NDVI2, 
+#what = c("lsm_l_ta", #total area of landscape
+#"lsm_c_ca", #total area of each class
+#"lsm_c_pland"), #proportional area of each class
+#full_name = TRUE) #include info about metrics in results
+
+#write.table(n, file='results.csv', sep = ',')
+
+
+```
+
+Now I want to sample the landscape metrics at various points throughout Houston.
+
+```{r}
+# create some example points
+
+(points <- matrix(c(-1277.2388951768814, 3167943.2284226264, 
+                    8489.951879005079, 3160060.5874214694, 
+                    19671.62048415247, 3156839.0186616005,
+                    878.1840763710006, 3197582.7009804193,
+                    -17982.961762739567, 3206867.8829988353,
+                    12361.177824295924, 3146028.76427377,
+                    -10395.065660724782, 3143894.104411436,
+                    -27864.853228638654, 3157193.4149715956), 
+                  ncol = 2, byrow = TRUE))
+```
+```{r}
+# Extract patch-level features for points defined using the cartesian-to-geographic.ipynb
+# Jupyter notebook and save the results in a .csv file.
+
+extract_lsm(lcz2, y = points, what = c("lsm_p_area", "lsm_p_cai", "lsm_p_contig", "lsm_p_core", "lsm_p_enn", "lsm_p_frac", "lsm_p_gyrate", "lsm_p_ncore", "lsm_p_para", "lsm_p_perim", "lsm_p_shape"), verbose=FALSE)
+```
+```{r}
+sample_lsm(lcz2, y = points, size = 10, 
+           level = "landscape", type = "diversity metric", 
+           classes_max = 3, verbose = FALSE)
+```
+
