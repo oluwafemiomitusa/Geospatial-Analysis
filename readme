@@ -1,1 +1,23 @@
+Step 1: Landscape mapping
+Order of code execution:
+split_raster.ipynb --> batch_fragstats --> rename_to_csv.sh --> combine_metrics.ipynb
+
+To do: 
+1. Convert all files to bash script that runs all processes automatically.
+
+Step 2: ASOS
+Order of code execution:
+format_asos_data.ipynb
+
+To do:
+1. Convert this to a bash script.
+
+Step 3: NEXRAD L3 data
+To do:
+1. Write a bash script
+
+Step 4: Combine data
+To do:
+1. Write a bash script that combines all the datasets together into one single dataset ready for analysis.
+
 
