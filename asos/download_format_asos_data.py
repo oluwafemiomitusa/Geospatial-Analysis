@@ -2,12 +2,17 @@ import requests
 import pandas as pd
 import os
 
+
+year = 2022   # Change for each year
+
+os.mkdir(f'./{year}')
+
 stations = ['72242712975', '72059400188', '72243612906', '72242953910', 
             '72243012960', '72063700223', '72254312977', '72244012918', 
             '99848199999']
 
 for i, station in enumerate(stations, start=1):
-    url = f'https://www.ncei.noaa.gov/data/global-hourly/access/2022/{station}.csv'
+    url = f'https://www.ncei.noaa.gov/data/global-hourly/access/{year}/{station}.csv'
     response = requests.get(url)
     
     # Save the file
@@ -17,7 +22,7 @@ for i, station in enumerate(stations, start=1):
     df = pd.read_csv(f'{station}.csv')
     df['Date'] = pd.to_datetime(df['DATE'])
     df['Month'] = df['Date'].dt.month
-    summer_data = df[(df['Month'] >= 6) & (df['Month'] <= 8)]
+    summer_data = df[(df['Month'] >= 3) & (df['Month'] <= 8)]
     subsetted_data = summer_data.iloc[:, [1, 3, 4, 5, 10, 11, 12, 13, 14, 15]]
 
     # ... continue your processing here...
@@ -72,7 +77,5 @@ for i, station in enumerate(stations, start=1):
     subsetted_data.loc[subsetted_data['SLP_QC'].isin(['2', '3', '6', '7']), 'SLP'] = '99999'
     subsetted_data.drop('SLP_QC', axis=1, inplace=True)
 
-    final = subsetted_data.replace(to_replace=r'^999.*', value=0, regex=True)
-
-    final.to_csv(f'station{i}.csv', index=False)
+    subsetted_data.to_csv(f'{year}/station{i}_{year}.csv', index=False)
     os.remove(f'{station}.csv')  # remove the original downloaded data
